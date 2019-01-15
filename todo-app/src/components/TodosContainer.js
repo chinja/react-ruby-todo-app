@@ -28,17 +28,24 @@ class TodosContainer extends Component {
 
   createTodo = (e) => {
     if (e.key === 'Enter') {
-      axios.post('/api/v1/todos', {todo: {title: e.target.value}})
-      .then(response => {
-        const todos = update(this.state.todos, {
-          $splice: [[0, 0, response.data]]
+      const input_str = e.target.value;
+      const regex = /(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\.git)(\/?|\#[-\d\w._]+?)$/;
+      if(regex.test(input_str)){
+        axios.post('/api/v1/todos', {todo: {title: input_str}})
+        .then(response => {
+          const todos = update(this.state.todos, {
+            $splice: [[0, 0, response.data]]
+          })
+          this.setState({
+            todos: todos,
+            inputValue: ''
+          })
         })
-        this.setState({
-          todos: todos,
-          inputValue: ''
-        })
+        .catch(error => console.log(error))
+      }
+      this.setState({
+        inputValue: 'Invalid Github URL'
       })
-      .catch(error => console.log(error))
     }
   }
 
